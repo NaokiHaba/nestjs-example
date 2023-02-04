@@ -4,7 +4,7 @@ import { UsersService } from './users.service';
 import { User } from './entities/user.entity';
 import { CreateUserDto } from './dto/create-user.dto';
 import { getRepositoryToken } from '@nestjs/typeorm';
-import { Repository } from 'typeorm';
+import { DeleteResult, Repository } from 'typeorm';
 
 describe('UsersController', () => {
   let controller: UsersController;
@@ -94,6 +94,68 @@ describe('UsersController', () => {
       });
 
       expect(controller.findOne(2)).rejects.toEqual({
+        statusCode: 404,
+        message: 'Not Found',
+      });
+    });
+  });
+
+  describe('update()', () => {
+    it('should return update result user', () => {
+      const dto: CreateUserDto = {
+        name: '太郎2',
+      };
+
+      const user: User = {
+        id: 1,
+        name: '太郎2',
+      };
+
+      jest.spyOn(service, 'update').mockImplementation(async () => {
+        return user;
+      });
+
+      expect(controller.update('1', dto)).resolves.toEqual(user);
+    });
+
+    it('should return not found exception', () => {
+      jest.spyOn(service, 'update').mockRejectedValue({
+        statusCode: 404,
+        message: 'Not Found',
+      });
+
+      const dto: CreateUserDto = {
+        name: '太郎2',
+      };
+
+      expect(controller.update('2', dto)).rejects.toEqual({
+        statusCode: 404,
+        message: 'Not Found',
+      });
+    });
+  });
+
+  describe('remove()', () => {
+    it('should return remove result', () => {
+      const result: DeleteResult = {
+        raw: [],
+        affected: 1,
+      };
+
+      jest.spyOn(service, 'remove').mockImplementation(async () => {
+        return result;
+      });
+
+      expect(controller.remove('1')).resolves.toEqual(result);
+    });
+
+    it('should return not found exception', () => {
+      jest.spyOn(service, 'remove').mockRejectedValue({
+        statusCode: 404,
+        message: 'Not Found',
+      });
+
+      expect(controller.remove('2')).rejects.toEqual({
         statusCode: 404,
         message: 'Not Found',
       });
