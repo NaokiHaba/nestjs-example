@@ -23,7 +23,6 @@ import { Module } from '@nestjs/common';
         password: configService.get('database.password'),
         database: configService.get('database.name'),
         entities: ['dist/**/entities/**/*.entity.js'],
-        synchronize: true,
       }),
       inject: [ConfigService],
     }),
